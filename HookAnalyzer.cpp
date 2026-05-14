@@ -133,7 +133,7 @@ bool HookAnalyzer::GenerateINJ()
 					fputs(";Relative Hook Found ,failed to Generate", File);
 				else if (!h.SubPriority.empty())
 					fprintf(File, "%X=%s,%X,%d,%s\n", h.Addr, h.Proc.c_str(), h.Len, h.Priority, h.SubPriority.c_str());
-				else if (h.Priority == 100000)
+				else if (h.Priority == DefaultPriority)
 					fprintf(File, "%X=%s,%X\n", h.Addr, h.Proc.c_str(), h.Len);
 				else
 					fprintf(File, "%X=%s,%X,%d\n", h.Addr, h.Proc.c_str(), h.Len, h.Priority);

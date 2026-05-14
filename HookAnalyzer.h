@@ -5,6 +5,7 @@
 #include<string>
 
 const std::string AnalyzerDelim = "\\*^*\\";
+const int DefaultPriority = 100000;
 
 struct HookAnalyzeData
 {
@@ -13,7 +14,7 @@ struct HookAnalyzeData
 	int Addr;
 	int Len;
 
-	int Priority{ 100000 };
+	int Priority{ DefaultPriority };
 	std::string SubPriority{ "" };
 	std::string RelLib{ "" };
 };
