@@ -1142,7 +1142,7 @@ void SyringeDebugger::FindDLLs()
             std::string_view filename = i.lib;
             auto sz = filename.find_last_of('\\');
             auto sv = (sz != std::string_view::npos) ? filename.substr(sz + 1, filename.size() - sz - 1) : filename;
-            analyzer.Add(HookAnalyzeData{ sv.data(), i.proc, (int)it.first, (int)i.num_overridden }, false);
+            analyzer.Add(HookAnalyzeData{ sv.data(), i.proc, (int)it.first, (int)i.num_overridden }, true);
 
             v_AllHooks.push_back(&i);
         }
