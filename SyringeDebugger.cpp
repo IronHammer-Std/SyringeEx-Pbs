@@ -1,4 +1,4 @@
-#include "SyringeDebugger.h"
+﻿#include "SyringeDebugger.h"
 
 #include "CRC32.h"
 #include "FindFile.h"
@@ -788,8 +788,28 @@ DWORD SyringeDebugger::HandleException(DEBUG_EVENT const& dbgEvent)
     return DBG_CONTINUE;
 }
 
-void SyringeDebugger::Run(std::string_view const arguments)
+void SyringeDebugger::Run(std::string_view arguments)
 {
+    if(bDryRun)
+    {
+        Log::WriteLine(__FUNCTION__ ": Entering dry run mode, not actually running the process.");
+		DryRun(arguments);
+	}
+    else
+    {
+        RealRun(arguments);
+    }
+}
+
+void SyringeDebugger::DryRun(std::string_view const arguments)
+{
+    PreLoadData();
+}
+
+void SyringeDebugger::RealRun(std::string_view const arguments)
+{
+    PreLoadData();
+
     constexpr auto AllocDataSize = sizeof(AllocData);
 
     Log::WriteLine(
@@ -935,6 +955,17 @@ void SyringeDebugger::Run(std::string_view const arguments)
     Log::WriteLine(
         __FUNCTION__ ": Done with exit code %X (%u).", exit_code, exit_code);
     Log::WriteLine();
+}
+
+void SyringeDebugger::PreLoadData()
+{
+    if (bGenerateINJ)
+    {
+        Log::WriteLine(__FUNCTION__ ": Creating INJ files...");
+        if (analyzer.GenerateINJ())
+            Log::WriteLine(__FUNCTION__ ": Complete.");
+        else Log::WriteLine(__FUNCTION__ ": Failed.");
+    }
 }
 
 void SyringeDebugger::RemoveBP(LPVOID const address, bool const restoreOpcode)
@@ -1108,6 +1139,11 @@ void SyringeDebugger::FindDLLs()
     {
         for (auto& i : it.second.hooks)
         {
+            std::string_view filename = i.lib;
+            auto sz = filename.find_last_of('\\');
+            auto sv = (sz != std::string_view::npos) ? filename.substr(sz + 1, filename.size() - sz - 1) : filename;
+            analyzer.Add(HookAnalyzeData{ sv.data(), i.proc, (int)it.first, (int)i.num_overridden }, false);
+
             v_AllHooks.push_back(&i);
         }
     }

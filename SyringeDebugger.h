@@ -22,6 +22,8 @@
 #include <Zydis/Utils.h>
 #pragma warning(pop)
 
+#include "HookAnalyzer.h"
+
 using std::operator""sv;
 
 class SyringeDebugger
@@ -36,6 +38,8 @@ class SyringeDebugger
     static constexpr std::string_view NODETACH_FLAG = "--nodetach";
     static constexpr std::string_view NOWAIT_FLAG = "--nowait";
     static constexpr std::string_view HANDSHAKES_FLAG = "--handshakes";
+	static constexpr std::string_view DRYRUN_FLAG = "--dryrun";
+    static constexpr std::string_view GENERATEINJ_FLAG = "--generate-inj";
 
 public:
     SyringeDebugger(std::string_view filename, std::vector<std::string> flags = {})
@@ -66,6 +70,14 @@ public:
             {
                 bHandshakes = true;
             }
+            else if (auto const pos = flagView.find(DRYRUN_FLAG); pos != std::string_view::npos)
+            {
+				bDryRun = true;
+            }
+            else if (auto const pos = flagView.find(GENERATEINJ_FLAG); pos != std::string_view::npos)
+            {
+                bGenerateINJ = true;
+			}
             else
             {
                 Log::WriteLine(__FUNCTION__ ": Unknown flag \"%.*s\", skipping.", printable(flagView));
@@ -83,6 +95,8 @@ public:
     }
 
     // debugger
+	void DryRun(std::string_view arguments);
+    void RealRun(std::string_view arguments);
     void Run(std::string_view arguments);
     DWORD HandleException(DEBUG_EVENT const& dbgEvent);
 
@@ -195,11 +209,16 @@ private:
     bool bDetachWhenDone{ true };
     bool bWaitForProcessEnd{ true };
     bool bHandshakes{ false };
+    bool bDryRun{ false };
+	bool bGenerateINJ{ false };
 
     bool bDLLsLoaded{ false };
     bool bHooksCreated{ false };
 
     bool bAVLogged{ false };
+
+    // components
+	HookAnalyzer analyzer;
 
     // data addresses
     struct AllocData
@@ -250,6 +269,7 @@ private:
     bool CanHostDLL(PortableExecutable const& DLL, IMAGE_SECTION_HEADER const& hosts) const;
     bool ParseHooksSection(PortableExecutable const& DLL, IMAGE_SECTION_HEADER const& hooks, HookBuffer& buffer);
     std::optional<bool> Handshake(char const* lib, int hooks, unsigned int crc);
+    void PreLoadData();
 };
 
 // disable "structures padded due to alignment specifier"
