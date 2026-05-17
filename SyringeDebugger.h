@@ -42,7 +42,6 @@ class SyringeDebugger
     static constexpr std::string_view GENERATEINJ_FLAG = "--generate-inj";
     static constexpr std::string_view REPORT_LOG_FLAG = "--report-log";
     static constexpr std::string_view REPORT_JSON_FLAG = "--report-json";
-    static constexpr std::string_view DETECT_CONFLICT_FLAG = "--detect-conflict";
     static constexpr std::string_view SHOW_HOOK_CONFLICT_POPUP_FLAG = "--show-hook-conflict-popup";
     static constexpr std::string_view NO_BY_ADDRESS_FLAG = "--no-by-address";
     static constexpr std::string_view NO_BY_LIBRARY_FLAG = "--no-by-library";
@@ -94,10 +93,6 @@ public:
             else if (auto const pos = flagView.find(REPORT_JSON_FLAG); pos != std::string_view::npos)
             {
                 bReportJSON = true;
-            }
-            else if (auto const pos = flagView.find(DETECT_CONFLICT_FLAG); pos != std::string_view::npos)
-            {
-                bDetectConflict = true;
             }
             else if (auto const pos = flagView.find(SHOW_HOOK_CONFLICT_POPUP_FLAG); pos != std::string_view::npos)
             {
@@ -246,7 +241,7 @@ private:
 	bool bGenerateINJ{ false };
     bool bReportLOG{ false };
     bool bReportJSON{ false };
-    bool bDetectConflict{ false };
+    bool bDetectConflict{ true };
     bool bShowHookConflictPopup{ false };
     bool bReportLogByAddress{ true };
     bool bReportLogByLibrary{ true };
